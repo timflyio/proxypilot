@@ -1,0 +1,11 @@
+# ----
+FROM debian:bookworm
+
+# more stuff than we need.. clean this to get something more streamline...
+RUN apt update && apt install -y iproute2 netcat-openbsd iputils-ping curl python3 tcpdump magic-wormhole procps
+
+# XXX this requires premaking tlsproxy/ca.pem. we cant do it in builder because the other docker file needs
+# to share the same file.
+COPY tlsproxy/ca.pem /
+COPY startup.sh /usr/local/bin
+CMD ["startup.sh"]

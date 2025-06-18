@@ -1,0 +1,30 @@
+{
+  "config": {
+  "containers": [
+    {
+      "name": "sideproxy",
+      "image": "registry.fly.io/proxypilot:latest",
+      "env": {
+        "PORT": 443,
+        "TOKEN": "TOKENTOKENTOKEN"
+      },
+      "health_checks": [
+        {
+          "type": "tcp",
+          "port": 443
+        }
+      ]
+    },
+    {
+      "name": "shell",
+      "image": "debian:bookworm",
+      "depends_on": [
+        {
+          "container": "sideproxy",
+          "condition": "healthy"
+        }
+      ]
+    }
+  ]
+}
+}

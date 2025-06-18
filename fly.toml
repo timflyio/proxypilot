@@ -1,0 +1,7 @@
+app = 'proxypilot'
+primary_region = 'qmx'
+
+[experimental]
+machine_config = 'cli-config.json'
+container = 'shell'
+

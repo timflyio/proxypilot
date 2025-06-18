@@ -1,0 +1,21 @@
+# ----
+ARG GO_VERSION=1
+FROM golang:${GO_VERSION}-bookworm as builder
+
+WORKDIR /usr/src/app
+COPY tlsproxy/go.mod tlsproxy/go.sum ./
+RUN go mod download && go mod verify
+COPY tlsproxy/. .
+RUN go build -v -o tlsproxy main.go
+
+# ----
+FROM debian:bookworm
+
+# more stuff than we need.. clean this to get something more streamline...
+RUN apt update && apt install -y iproute2 netcat-openbsd iputils-ping curl python3 tcpdump magic-wormhole procps
+
+COPY --from=builder /tlsproxy /usr/local/bin/
+# XXX this requires premaking tlsproxy/ca.pem. we cant do it in builder because the other docker file needs
+# to share the same file.
+COPY tlsproxy/ca.pem tlsproxy/ca-key.pem /
+CMD ["tlsproxy"]
