@@ -1,23 +1,23 @@
 {
-"config": {
+"config":{
   "guest": {
     "cpu_kind": "shared",
     "cpus": 1,
     "memory_mb": 1024
   },
-  "image": "unused-but-must-be-provided",
+  "image": "bogus",
   "containers": [
     {
       "name": "sideproxy",
       "image": "registry.fly.io/proxypilot:sideproxy",
       "env": {
-        "PORT": 443,
+        "PORT": "443",
         "TOKEN": "TOKENTOKENTOKEN"
       },
       "health_checks": [
         {
           "type": "tcp",
-          "port": "443"
+          "port": 443
         }
       ]
     },

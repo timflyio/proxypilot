@@ -8,9 +8,14 @@ Generate a CA. This isnt done automatically during docker builds.
 
 Build the images
 
-* `fly deploy --build-only --image-label shell -c fly.toml.shell`
-* `fly deploy --build-only --image-label sideproxy -c fly.toml.sideproxy`
+* `fly deploy --build-only --image-label shell -c fly.toml.shell --push`
+* `fly deploy --build-only --image-label sideproxy -c fly.toml.sideproxy --push`
 
 Run a machine with the two containers specified in cli-config.json.
+This doesnt work:
 
 * `fly m run --machine-config cli-config.json --vm-cpu-kind shared --vm-cpus 1 --vm-memory 256 -r qmx`
+
+But using the API does work. You'll need a token in `DEPLOY_TOKEN`.
+
+* `./deploy.sh`
