@@ -6,24 +6,23 @@
     "cpus": 1,
     "memory_mb": 1024
   },
-  "image": "bogus",
   "containers": [
     {
       "name": "shell",
       "image": "registry.fly.io/proxypilot:shell",
       "env": {
-        "GH_TOKEN": "TOKEN"
+        "GH_TOKEN": "j+IXbHD0BLGe/+i4zV8aGQ3qTqW5Z/bceyWofGxZih106bA0i8sDHFkRTEsXcbYtjLCeZM2FXMNWH+ji4ANXgVfHXnvnBlEYHPyNH9iylwU+ykNUzE0Whsh+Wa/kLAI0WtQdP3zjNkQFC0pjgA6zryCqKpc0AF1IxqljvMg6lCBA9oadzEkJLtpPANmG76slG6u7jcwNuhnR6ulS4zH6dhkgjR4s2MgKrdtnG5Tt9A57RURYB0HmVbOyivEIkaueIJYKz/1d2VGsrkdL8lX9eHgjwpXPbYoyWKoi6Ie3mBlOJYXN"
       }
     },
     {
       "name": "sideproxy",
       "image": "registry.fly.io/proxypilot:sideproxy",
       "env": {
+        "PROXY": "https://tokenizer.fly.io",
+        "PROXYAUTH": "proxyauthtoken",
+        "URL": "https://api.github.com",
         "PORT": "443"
-      },
-      "secrets": [
-         { "name": "TOKEN", "env_var": "TOKEN" }
-      ]
+      }
     }
   ]
 }

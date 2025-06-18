@@ -6,10 +6,9 @@ Generate a CA. This isnt done automatically during docker builds.
 * `git clone git@github.com:timflyio/tlsproxy.git`
 * `cd tlsproxy; go run main.go ca`
 
-Make the app and set the GH token:
+Make the app:
 
 * `fly app create proxypilot`
-* `fly secrets set --stage TOKEN=<github-token-here>`
 
 Build the images
 
@@ -21,7 +20,10 @@ This doesnt work:
 
 * `fly m run --machine-config cli-config.json --vm-cpu-kind shared --vm-cpus 1 --vm-memory 256 -r qmx`
 
-But using the API does work. You'll need a token in `DEPLOY_TOKEN`.
+But using the API does work. Instead use `deploy.sh`. You'll need a token in `DEPLOY_TOKEN`.
+Before doing this, edit the `machine-config.json` and set the `GH_SECRET` to the sealed secret for
+your github token, and `PROXYAUTH` to the auth for the `tokenizer.fly.io` proxy.
+for
 
 * `./deploy.sh`
 
@@ -43,6 +45,57 @@ Destroy it
 * `fly m list`
 * `fly m destroy --force <machine-id-here>`
 
+## How it works
+
+This builds two containers in a machine. The first is a shell in the `shell` container. It has the `gh` binary
+and the `GH_TOKEN` set to a sealed secret token, encrypted/sealed to the tokenizer's public key. The shell has
+an `/etc/hosts` entry associating `api.github.com` with `::1`. Requests to `https://api.github.com` will be
+sent there, and received by the side proxy's listener.
+
+The second container is the `sideproxy` container which is listening on `::1` port 443. It auto-generates
+TLS certificates based on the request's SNI, using its own CA. The `shell` container is configured to trust
+this cA.  To process a request, the server uses the `https://tokenizer.fly.io` proxy, passing in the original
+request's auth header as the sealed secret. The tokenizer receives the sealed secret, and extracts its rules,
+which only allow access to `https://api.github.com`, requiring an auth header on the proxy request, and
+unsealing the github token into an authorization header. It proxies this request to the `http://api.github.com`
+with the authorization header.
+
+## Sealed secrets
+
+To seal the secret, I'm using the following script. Pick an arbitrary `AUTH_TOKEN` and use as the `PROXYAUTH` in
+the `machine-config.json` env var. Set the `SEAL_KEY` to the public key from `tokenizer.fly.io` (it prints it in
+its logs during startup). Set `TOKEN` to the `GH_TOKEN` you want to seal.  Take the resulting base64 string
+and put it into `machine-config.json` as the `GH_TOKEN` value.
+
+```
+#!/usr/bin/env ruby
+
+require 'base64'
+require 'digest'
+require 'json'
+require 'rbnacl'
+
+auth_key = ENV["AUTH_TOKEN"]
+seal_key = ENV["SEAL_KEY"]
+token = ENV["TOKEN"]
+secret = {
+    inject_processor: {
+        token: token
+    },
+    bearer_auth: {
+        digest: Digest::SHA256.base64digest(auth_key)
+    },
+	allowed_hosts: ["api.github.com"],
+}
+
+seal_key = [seal_key].pack('H*')
+sealed_secret = RbNaCl::Boxes::Sealed.new(seal_key).box(secret.to_json)
+b64 = Base64.encode64(sealed_secret).delete("\n")
+
+puts(token)
+puts(auth_key)
+puts(b64)
+```
 
 
 ## Notes
