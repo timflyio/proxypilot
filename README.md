@@ -99,8 +99,8 @@ puts(b64)
 
 ## Notes
 
-The proxy is using a hardwired IP address for `api.github.com`. This is brittle.
-It doesn't have to since its running in its own container without a hacked up /etc/hosts.
-
-The proxy has access to the github token. In the future it should just proxy to a tokenizer proxy that has
-access to secrets that machines do not have access to.
+The sidecar only has access to a sealed github key, but anyone with access to the sealed github
+key can use it to make requests through the public tokenizer endpoint. 
+We should allow flycast access to this app, and seal the key with a FlySrc restriction saying the
+key can only be used by this app. Then the sealed key could only be used from within this app
+if it was ever compromised.
