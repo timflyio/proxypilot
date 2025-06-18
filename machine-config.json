@@ -11,7 +11,7 @@
       "name": "shell",
       "image": "registry.fly.io/proxypilot:shell",
       "env": {
-        "GH_TOKEN": "j+IXbHD0BLGe/+i4zV8aGQ3qTqW5Z/bceyWofGxZih106bA0i8sDHFkRTEsXcbYtjLCeZM2FXMNWH+ji4ANXgVfHXnvnBlEYHPyNH9iylwU+ykNUzE0Whsh+Wa/kLAI0WtQdP3zjNkQFC0pjgA6zryCqKpc0AF1IxqljvMg6lCBA9oadzEkJLtpPANmG76slG6u7jcwNuhnR6ulS4zH6dhkgjR4s2MgKrdtnG5Tt9A57RURYB0HmVbOyivEIkaueIJYKz/1d2VGsrkdL8lX9eHgjwpXPbYoyWKoi6Ie3mBlOJYXN"
+        "GH_TOKEN": "DUMMY"
       }
     },
     {
@@ -21,6 +21,7 @@
         "PROXY": "https://tokenizer.fly.io",
         "PROXYAUTH": "proxyauthtoken",
         "URL": "https://api.github.com",
+        "URLAUTH": "j+IXbHD0BLGe/+i4zV8aGQ3qTqW5Z/bceyWofGxZih106bA0i8sDHFkRTEsXcbYtjLCeZM2FXMNWH+ji4ANXgVfHXnvnBlEYHPyNH9iylwU+ykNUzE0Whsh+Wa/kLAI0WtQdP3zjNkQFC0pjgA6zryCqKpc0AF1IxqljvMg6lCBA9oadzEkJLtpPANmG76slG6u7jcwNuhnR6ulS4zH6dhkgjR4s2MgKrdtnG5Tt9A57RURYB0HmVbOyivEIkaueIJYKz/1d2VGsrkdL8lX9eHgjwpXPbYoyWKoi6Ie3mBlOJYXN",
         "PORT": "443"
       }
     }

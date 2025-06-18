@@ -48,14 +48,15 @@ Destroy it
 ## How it works
 
 This builds two containers in a machine. The first is a shell in the `shell` container. It has the `gh` binary
-and the `GH_TOKEN` set to a sealed secret token, encrypted/sealed to the tokenizer's public key. The shell has
-an `/etc/hosts` entry associating `api.github.com` with `::1`. Requests to `https://api.github.com` will be
+and the `GH_TOKEN` set to a dummy value.
+The shell has an `/etc/hosts` entry associating `api.github.com` with `::1`. Requests to `https://api.github.com` will be
 sent there, and received by the side proxy's listener.
 
 The second container is the `sideproxy` container which is listening on `::1` port 443. It auto-generates
 TLS certificates based on the request's SNI, using its own CA. The `shell` container is configured to trust
-this cA.  To process a request, the server uses the `https://tokenizer.fly.io` proxy, passing in the original
-request's auth header as the sealed secret. The tokenizer receives the sealed secret, and extracts its rules,
+this CA.  To process a request, the server uses the `https://tokenizer.fly.io` proxy, passing in the
+sealed secret token, which is encrypted/sealed to the tokenizers public key.
+The tokenizer receives the sealed secret, and extracts its rules,
 which only allow access to `https://api.github.com`, requiring an auth header on the proxy request, and
 unsealing the github token into an authorization header. It proxies this request to the `http://api.github.com`
 with the authorization header.
@@ -65,7 +66,7 @@ with the authorization header.
 To seal the secret, I'm using the following script. Pick an arbitrary `AUTH_TOKEN` and use as the `PROXYAUTH` in
 the `machine-config.json` env var. Set the `SEAL_KEY` to the public key from `tokenizer.fly.io` (it prints it in
 its logs during startup). Set `TOKEN` to the `GH_TOKEN` you want to seal.  Take the resulting base64 string
-and put it into `machine-config.json` as the `GH_TOKEN` value.
+and put it into `machine-config.json` as the `URLAUTH` value.
 
 ```
 #!/usr/bin/env ruby
