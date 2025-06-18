@@ -3,7 +3,7 @@
   "containers": [
     {
       "name": "sideproxy",
-      "image": "registry.fly.io/proxypilot:latest",
+      "image": "registry.fly.io/proxypilot:sideproxy",
       "env": {
         "PORT": 443,
         "TOKEN": "TOKENTOKENTOKEN"
@@ -17,7 +17,7 @@
     },
     {
       "name": "shell",
-      "image": "debian:bookworm",
+      "image": "registry.fly.io/proxypilot:shell",
       "depends_on": [
         {
           "container": "sideproxy",
