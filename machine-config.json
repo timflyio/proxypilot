@@ -1,5 +1,6 @@
 {
 "config":{
+  "region": "sjc",
   "guest": {
     "cpu_kind": "shared",
     "cpus": 1,
@@ -8,27 +9,20 @@
   "image": "bogus",
   "containers": [
     {
+      "name": "shell",
+      "image": "registry.fly.io/proxypilot:shell",
+      "env": {
+        "GH_TOKEN": "TOKEN"
+      }
+    },
+    {
       "name": "sideproxy",
       "image": "registry.fly.io/proxypilot:sideproxy",
       "env": {
-        "PORT": "443",
-        "TOKEN": "TOKENTOKENTOKEN"
+        "PORT": "443"
       },
-      "health_checks": [
-        {
-          "type": "tcp",
-          "port": 443
-        }
-      ]
-    },
-    {
-      "name": "shell",
-      "image": "registry.fly.io/proxypilot:shell",
-      "depends_on": [
-        {
-          "container": "sideproxy",
-          "condition": "healthy"
-        }
+      "secrets": [
+         { "name": "TOKEN", "env_var": "TOKEN" }
       ]
     }
   ]

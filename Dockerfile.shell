@@ -1,8 +1,16 @@
 # ----
 FROM debian:bookworm
+ARG GHVERSION="2.74.1"
 
 # more stuff than we need.. clean this to get something more streamline...
-RUN apt update && apt install -y iproute2 netcat-openbsd iputils-ping curl python3 tcpdump magic-wormhole procps
+RUN apt update && apt install -y iproute2 netcat-openbsd iputils-ping curl python3 tcpdump magic-wormhole procps wget net-tools
+
+WORKDIR /root
+
+# Get gh client.
+RUN wget https://github.com/cli/cli/releases/download/v${GHVERSION}/gh_${GHVERSION}_linux_amd64.tar.gz
+RUN tar -xzf gh_${GHVERSION}_linux_amd64.tar.gz
+RUN cp gh_${GHVERSION}_linux_amd64/bin/gh /usr/bin
 
 # XXX this requires premaking tlsproxy/ca.pem. we cant do it in builder because the other docker file needs
 # to share the same file.
