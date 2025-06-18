@@ -6,9 +6,10 @@ Generate a CA. This isnt done automatically during docker builds.
 * `git clone git@github.com:timflyio/tlsproxy.git`
 * `cd tlsproxy; go run main.go ca`
 
-Make the app:
+Make the app and set the sealed secret.
 
 * `fly app create proxypilot`
+* `fly secrets set --stage URLAUTH=sealed-github-token-here`
 
 Build the images
 
@@ -21,9 +22,6 @@ This doesnt work:
 * `fly m run --machine-config cli-config.json --vm-cpu-kind shared --vm-cpus 1 --vm-memory 256 -r qmx`
 
 But using the API does work. Instead use `deploy.sh`. You'll need a token in `DEPLOY_TOKEN`.
-Before doing this, edit the `machine-config.json` and set the `GH_SECRET` to the sealed secret for
-your github token, and `PROXYAUTH` to the auth for the `tokenizer.fly.io` proxy.
-for
 
 * `./deploy.sh`
 
@@ -37,7 +35,7 @@ or acces to the injected CA key.  Go ahead and search the filesystem for it.
 In the sideproxy container you can access the github token:
 
 * `fly ssh console --container sideproxy`
-* `echo $TOKEN`
+* `echo $URLAUTH`
 
 
 Destroy it
