@@ -18,8 +18,7 @@
       "name": "sideproxy",
       "image": "registry.fly.io/proxypilot:sideproxy",
       "env": {
-        "PROXY": "https://tokenizer.fly.io",
-        "PROXYAUTH": "proxyauthtoken",
+        "PROXY": "http://tokenizer.flycast:8080",
         "URL": "https://api.github.com",
         "PORT": "443"
       },
