@@ -58,7 +58,7 @@ TLS certificates based on the request's SNI, using its own CA. The `shell` conta
 this CA.  To process a request, the server uses the `https://tokenizer.fly.io` proxy, passing in the
 sealed secret token, which is encrypted/sealed to the tokenizers public key.
 The tokenizer receives the sealed secret, and extracts its rules,
-which only allow access to `https://api.github.com`, requiring an auth header on the proxy request, and
+which only allow access to `https://api.github.com`, and only works from the proxyauth app (using fly-src auth),
 unsealing the github token into an authorization header. It proxies this request to the `http://api.github.com`
 with the authorization header.
 
@@ -104,8 +104,3 @@ puts(b64)
 
 ## Notes
 
-The sidecar only has access to a sealed github key, but anyone with access to the sealed github
-key can use it to make requests through the public tokenizer endpoint. 
-We should allow flycast access to this app, and seal the key with a FlySrc restriction saying the
-key can only be used by this app. Then the sealed key could only be used from within this app
-if it was ever compromised.
