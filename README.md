@@ -67,45 +67,142 @@ which only allow access to `https://api.github.com`, and only works from the pro
 unsealing the github token into an authorization header. It proxies this request to the `http://api.github.com`
 with the authorization header.
 
-## Sealed secrets
+## Example
 
-To seal the secret, I'm using the following script. Pick an arbitrary `AUTH_TOKEN` and use as the `PROXYAUTH` in
-the `machine-config.json` env var. Set the `SEAL_KEY` to the public key from `tokenizer.fly.io` (it prints it in
-its logs during startup). Set `TOKEN` to the `GH_TOKEN` you want to seal.  Take the resulting base64 string
-and put it into `machine-config.json` as the `URLAUTH` value.
+This example demonstrates how dummy tokens are automatically replaced when making
+requests to anthropic, github, and openai:
 
 ```
-#!/usr/bin/env ruby
+$ fly ssh console --container shell
+Connecting to fdaa:9:1094:a7b:4ce:9c8:c214:2... complete
+root@shell:/# cd
+root@shell:~# env |egrep 'TOKEN|KEY'
+ANTHROPIC_API_KEY=dummy
+OPENAI_API_KEY=dummy
+GH_TOKEN=dummy
+root@shell:~# cat anthropic.sh 
+#!/bin/sh
 
-require 'base64'
-require 'digest'
-require 'json'
-require 'rbnacl'
+curl https://api.anthropic.com/v1/messages \
+     --header "x-api-key: $ANTHROPIC_API_KEY" \
+     --header "anthropic-version: 2023-06-01" \
+     --header "content-type: application/json" \
+     --data \
+'{
+    "model": "claude-opus-4-20250514",
+    "max_tokens": 1024,
+    "messages": [
+        {"role": "user", "content": "Hello, world"}
+    ]
+}'
+root@shell:~# ./anthropic.sh 
+{"id":"msg_0197HHPbR13ALq22Ea6PWHzF","type":"message","role":"assistant","model":"claude-opus-4-20250514","content":[{"type":"text","text":"Hello! Welcome to our conversation. How are you doing today? Is there anything specific you'd like to talk about or any questions I can help you with?"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":10,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":35,"service_tier":"standard"}}
+root@shell:~# gh auth status
+github.com
+  ✓ Logged in to github.com account timflyio (GH_TOKEN)
+  - Active account: true
+  - Git operations protocol: https
+  - Token: *****
+root@shell:~# cat openai.sh
+#!/bin/sh
 
-auth_key = ENV["AUTH_TOKEN"]
-seal_key = ENV["SEAL_KEY"]
-token = ENV["TOKEN"]
-secret = {
-    inject_processor: {
-        token: token
+curl https://api.openai.com/v1/responses \
+    -H "Content-Type: application/json" \
+    -H "Authorization: Bearer $OPENAI_API_KEY" \
+    -d '{
+    	"model": "gpt-4o-mini",
+        "input": "Write a one-sentence bedtime story about a unicorn."
+    }'
+root@shell:~# ./openai.sh
+{
+  "id": "resp_68702bbe11c08194a0b85f89e23a817a005703628be936ce",
+  "object": "response",
+  "created_at": 1752181694,
+  "status": "completed",
+  "background": false,
+  "error": null,
+  "incomplete_details": null,
+  "instructions": null,
+  "max_output_tokens": null,
+  "max_tool_calls": null,
+  "model": "gpt-4o-mini-2024-07-18",
+  "output": [
+    {
+      "id": "msg_68702bbe72548194b80bea23f850f2bd005703628be936ce",
+      "type": "message",
+      "status": "completed",
+      "content": [
+        {
+          "type": "output_text",
+          "annotations": [],
+          "logprobs": [],
+          "text": "As the silvery moon cast a gentle glow over the enchanted meadow, the brave little unicorn spread her shimmering wings and soared into the starry sky, making wishes come true for all the children asleep below."
+        }
+      ],
+      "role": "assistant"
+    }
+  ],
+  "parallel_tool_calls": true,
+  "previous_response_id": null,
+  "reasoning": {
+    "effort": null,
+    "summary": null
+  },
+  "service_tier": "default",
+  "store": true,
+  "temperature": 1.0,
+  "text": {
+    "format": {
+      "type": "text"
+    }
+  },
+  "tool_choice": "auto",
+  "tools": [],
+  "top_logprobs": 0,
+  "top_p": 1.0,
+  "truncation": "disabled",
+  "usage": {
+    "input_tokens": 18,
+    "input_tokens_details": {
+      "cached_tokens": 0
     },
-    fly_src_auth: {
-        allowed_orgs: ["tim-newsham"],
-        allowed_apps: ["proxypilot"],
+    "output_tokens": 42,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
     },
-    allowed_hosts: ["api.github.com"],
+    "total_tokens": 60
+  },
+  "user": null,
+  "metadata": {}
 }
-}
+root@shell:~# cat xopenai.py 
+#!/usr/bin/env python3
 
-seal_key = [seal_key].pack('H*')
-sealed_secret = RbNaCl::Boxes::Sealed.new(seal_key).box(secret.to_json)
-b64 = Base64.encode64(sealed_secret).delete("\n")
+from openai import OpenAI
+client = OpenAI()
 
-puts(token)
-puts(auth_key)
-puts(b64)
+response = client.responses.create(
+    model="gpt-4o-mini",
+    input="Write a one-sentence bedtime story about a unicorn."
+)
+
+print(response.output_text)
+root@shell:~# ./xopenai.py
+As the moonlight danced upon the meadow, a gentle unicorn named Lila spread her shimmering wings and soared into the starry sky, leaving a trail of dreams for children everywhere to follow as they drifted off to sleep.
+root@shell:~# cat openai.mjs
+import OpenAI from "openai";
+const client = new OpenAI();
+
+const response = await client.responses.create({
+    model: "gpt-4.1",
+    input: "Write a one-sentence bedtime story about a unicorn.",
+});
+
+console.log(response.output_text);
+root@shell:~# node openai.mjs
+Under a sky sprinkled with twinkling stars, a gentle unicorn named Lila danced through a field of glowing moonflowers, carrying sweet dreams to every sleeping child.
+root@shell:~# exit
 ```
-
 
 ## Notes
 
