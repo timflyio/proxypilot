@@ -40,10 +40,11 @@ or acces to the injected CA key.  Go ahead and search the filesystem for it.
 * `echo $GH_TOKEN`
 * `gh auth status`
 
-In the sideproxy container you can access the github token:
+In the sideproxy container you can access the sealed github token, but it does not have access
+to the actual github token being used:
 
 * `fly ssh console --container sideproxy`
-* `echo $URLAUTH`
+* `echo $GH_TOKEN`
 
 
 Destroy it
@@ -257,6 +258,6 @@ root@shell:~# exit
 
 ## Notes
 
-* This requires access to tokenizer via flycast in order to use tokenizer and in order to do fly-src auth, locking down the secret to a single org/app. If we were to use this technique more widely we might want to consider a way to make tokenizer globally reachable via flycast without having to configure each target org.
+* This requires access to tokenizer via flycast in order to use tokenizer and in order to do fly-src auth, locking down the secret to a single org/app. If we were to use this technique more widely we might want to consider a way to make tokenizer globally reachable via flycast without having to configure each target org. NOTE: proxy might support adding fly-src headers to normal requests in the future.
 * If we wanted to automate this more, we seal tokens on behalf of users at deploy time, and lock down the sealed token to a specific org/app/machine id, so that the token couldn't even be moved to another machine in the same app.
 * The `URLAUTH` is exposed to all containers via the new `/.fly/api` secrets endpoints. ie. `curl --unix-socket /.fly/api "http://flaps/v1/apps/$FLY_APP_NAME/secrets?show_secrets=1"`.  This has implications to any container that is trying to limit secrets access!
