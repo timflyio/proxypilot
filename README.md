@@ -6,15 +6,20 @@ Generate a CA. This isnt done automatically during docker builds.
 * `git clone git@github.com:timflyio/tlsproxy.git`
 * `cd tlsproxy; go run main.go ca`
 
-Make the app and set the sealed secret. Give it access to `tokenizer.flycast`.
+Make the app. Give it access to `tokenizer.flycast`.
 This can work without direct access to tokenizer via flycast, using `tokenizer.fly.io`,
 but flycast is required if we want to lock down a sealed secret to a specific app.
 
 * `fly app create proxypilot -o personal`
-* `fly secrets set --stage URLAUTH=sealed-github-token-here`
 * `fly -a tokenizer ips allocate-v6 --private --org personal`
 
-Build the images
+Seal secrets and set them for the app. The `wrap.sh` script does this, provided you have
+the `SEAL_KEY` for the tokenizer, and values for tokens in the `ANTHROPIC_API_KEY`,
+`OPENAI_API_KEY`, and `GH_TOKEN`.
+
+* `./wrap.sh`
+
+Now build the docker images:
 
 * `fly deploy --build-only --image-label shell -c fly.toml.shell --push`
 * `fly deploy --build-only --image-label sideproxy -c fly.toml.sideproxy --push`

@@ -11,7 +11,9 @@
       "name": "shell",
       "image": "registry.fly.io/proxypilot:shell",
       "env": {
-        "GH_TOKEN": "DUMMY"
+        "ANTHROPIC_API_KEY": "dummy",
+        "OPENAI_API_KEY": "dummy",
+        "GH_TOKEN": "dummy"
       }
     },
     {
@@ -19,11 +21,13 @@
       "image": "registry.fly.io/proxypilot:sideproxy",
       "env": {
         "PROXY": "http://tokenizer.flycast:8080",
-        "URL": "https://api.github.com",
-        "PORT": "443"
+        "PORT": "443",
+        "TARGETS": "api.anthropic.com=ANTHROPIC_API_KEY,api.openai.com=OPENAI_API_KEY,api.github.com=GH_TOKEN"
       },
       "secrets": [
-         { "name": "URLAUTH", "env_var": "URLAUTH" }
+         { "name": "ANTHROPIC_API_KEY", "env_var": "ANTHROPIC_API_KEY" },
+         { "name": "OPENAI_API_KEY", "env_var": "OPENAI_API_KEY" },
+         { "name": "GH_TOKEN", "env_var": "GH_TOKEN" }
       ]
     }
   ]
