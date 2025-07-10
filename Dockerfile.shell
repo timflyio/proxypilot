@@ -14,7 +14,9 @@ RUN cp gh_${GHVERSION}_linux_amd64/bin/gh /usr/bin
 
 COPY scripts/* /root
 
-# Get python and node openai support
+# Get python and node anthropic and openai support
+RUN pip install anthropic --break-system-packages
+RUN npm install @anthropic-ai/sdk
 RUN pip install openai --break-system-packages
 RUN npm install openai
 

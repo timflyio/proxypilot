@@ -97,6 +97,57 @@ curl https://api.anthropic.com/v1/messages \
 }'
 root@shell:~# ./anthropic.sh 
 {"id":"msg_0197HHPbR13ALq22Ea6PWHzF","type":"message","role":"assistant","model":"claude-opus-4-20250514","content":[{"type":"text","text":"Hello! Welcome to our conversation. How are you doing today? Is there anything specific you'd like to talk about or any questions I can help you with?"}],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":10,"cache_creation_input_tokens":0,"cache_read_input_tokens":0,"output_tokens":35,"service_tier":"standard"}}
+root@shell:~# cat anthropic.mjs
+import Anthropic from '@anthropic-ai/sdk';
+
+const anthropic = new Anthropic({
+  apiKey: 'my_api_key', // defaults to process.env["ANTHROPIC_API_KEY"]
+});
+
+const msg = await anthropic.messages.create({
+  model: "claude-opus-4-20250514",
+  max_tokens: 1024,
+  messages: [{ role: "user", content: "Hello, Claude" }],
+});
+console.log(msg);
+root@shell:~# node anthropic.mjs
+{
+  id: 'msg_01JX4bu4uzef1wtKNqFUJ6Qj',
+  type: 'message',
+  role: 'assistant',
+  model: 'claude-opus-4-20250514',
+  content: [
+    {
+      type: 'text',
+      text: "Hello! It's nice to meet you. How are you doing today?"
+    }
+  ],
+  stop_reason: 'end_turn',
+  stop_sequence: null,
+  usage: {
+    input_tokens: 10,
+    cache_creation_input_tokens: 0,
+    cache_read_input_tokens: 0,
+    output_tokens: 18,
+    service_tier: 'standard'
+  }
+}
+root@shell:~# cat xanthropic.py 
+#!/usr/bin/env python3
+
+import anthropic
+
+client = anthropic.Anthropic() # uses os.environ.get("ANTHROPIC_API_KEY")
+message = client.messages.create(
+    model="claude-opus-4-20250514",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Hello, Claude"}
+    ]
+)
+print(message.content)
+root@shell:~# ./xanthropic.py        
+[TextBlock(citations=None, text="Hello! It's nice to meet you. How are you doing today?", type='text')]
 root@shell:~# gh auth status
 github.com
   ✓ Logged in to github.com account timflyio (GH_TOKEN)
