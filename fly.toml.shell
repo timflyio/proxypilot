@@ -1,9 +1,0 @@
-app = 'proxypilot'
-primary_region = 'qmx'
-
-[build]
-dockerfile = "Dockerfile.shell"
-
-[experimental]
-machine_config = 'cli-config.json'
-container = 'shell'

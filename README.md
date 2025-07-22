@@ -1,10 +1,6 @@
 
 # Setup
 
-Get the tlsproxy repo which will be built as our side proxy:
-
-* `git clone git@github.com:timflyio/tlsproxy.git`
-
 Make the app. Give it access to `tokenizer.flycast`.
 This can work without direct access to tokenizer via flycast, using `tokenizer.fly.io`,
 but flycast is required if we want to lock down a sealed secret to a specific app.
@@ -18,10 +14,9 @@ the `SEAL_KEY` for the tokenizer, and values for tokens in the `ANTHROPIC_API_KE
 
 * `./wrap.sh`
 
-Now build the docker images:
+Now build the docker image:
 
-* `fly deploy --build-only --image-label shell -c fly.toml.shell --push`
-* `fly deploy --build-only --image-label sideproxy -c fly.toml.sideproxy --push`
+* `fly deploy --build-only --image-label shell --push`
 
 Run a machine with the two containers specified in cli-config.json.
 This doesnt work:

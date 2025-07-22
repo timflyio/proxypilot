@@ -24,7 +24,7 @@
     },
     {
       "name": "sideproxy",
-      "image": "registry.fly.io/proxypilot:sideproxy",
+      "image": "timflyio/tlsproxy",
       "healthchecks": [
         {
           "name": "443-reachable",
