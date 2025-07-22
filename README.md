@@ -14,18 +14,10 @@ the `SEAL_KEY` for the tokenizer, and values for tokens in the `ANTHROPIC_API_KE
 
 * `./wrap.sh`
 
-Now build the docker image:
+Now deploy the app. Note: make sure to specify the image label, which is referenced in `cli-config.json`.
+Otherwise the deploy will generate an image label which doesn't match.
 
-* `fly deploy --build-only --image-label shell --push`
-
-Run a machine with the two containers specified in cli-config.json.
-This doesnt work:
-
-* `fly m run --machine-config cli-config.json --vm-cpu-kind shared --vm-cpus 1 --vm-memory 256 -r qmx`
-
-But using the API does work. Instead use `deploy.sh`. You'll need a token in `DEPLOY_TOKEN`.
-
-* `./deploy.sh`
+* `fly deploy --image-label shell`
 
 Try it out. From the shell container you can use `gh`, but you have no access to the real github token,
 or acces to the injected CA key.  Go ahead and search the filesystem for it.
@@ -252,6 +244,7 @@ root@shell:~# exit
 
 ## Notes
 
+* `flyctl` does not support a `fly.toml` option for specifying an image label, which means it has to be specified each time `fly deploy` is run. If its not specified an older version of the image will be run instead of the latest built image. This is less than ideal. Flyctl should probably support a `fly.toml` field for this.
 * This requires access to tokenizer via flycast in order to use tokenizer and in order to do fly-src auth, locking down the secret to a single org/app. If we were to use this technique more widely we might want to consider a way to make tokenizer globally reachable via flycast without having to configure each target org. NOTE: proxy might support adding fly-src headers to normal requests in the future.
 * If we wanted to automate this more, we seal tokens on behalf of users at deploy time, and lock down the sealed token to a specific org/app/machine id, so that the token couldn't even be moved to another machine in the same app.
 * The `URLAUTH` is exposed to all containers via the new `/.fly/api` secrets endpoints. ie. `curl --unix-socket /.fly/api "http://flaps/v1/apps/$FLY_APP_NAME/secrets?show_secrets=1"`.  This has implications to any container that is trying to limit secrets access!
