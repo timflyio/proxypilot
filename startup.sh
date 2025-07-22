@@ -1,7 +1,6 @@
 #!/bin/sh
 
-echo "adding our CA and redirecting api.github.com"
-sleep 2 # XXX replace this with a health check configured in pilot for waiting for the sidecar to be ready
+echo "adding our CA and redirecting api.github.com, anthropic, and openai"
 if ! curl -s -k https://localhost/ca-cert.pem > /ca.pem ; then
     echo "FAILED TO GET CA CERT"
     exit 1

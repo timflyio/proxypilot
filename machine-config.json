@@ -10,6 +10,12 @@
     {
       "name": "shell",
       "image": "registry.fly.io/proxypilot:shell",
+      "depends_on": [
+        {
+          "container": "sideproxy",
+          "condition": "healthy"
+        }
+      ],
       "env": {
         "ANTHROPIC_API_KEY": "dummy",
         "OPENAI_API_KEY": "dummy",
@@ -19,6 +25,17 @@
     {
       "name": "sideproxy",
       "image": "registry.fly.io/proxypilot:sideproxy",
+      "health_checks": {
+        "type": "tcp",
+        "ip": "127.0.0.1",
+        "port": 443,
+        "grace_period": 500,
+        "interval": 1000,
+        "timeout": 1000,
+        "delay_start": 0,
+        "success_threshold": 1,
+        "failure_threshold": 5
+      },
       "env": {
         "PROXY": "http://tokenizer.flycast:8080",
         "PORT": "443",
