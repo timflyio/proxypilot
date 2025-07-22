@@ -1,10 +1,9 @@
 
 # Setup
 
-Generate a CA. This isnt done automatically during docker builds.
+Get the tlsproxy repo which will be built as our side proxy:
 
 * `git clone git@github.com:timflyio/tlsproxy.git`
-* `cd tlsproxy; go run main.go ca`
 
 Make the app. Give it access to `tokenizer.flycast`.
 This can work without direct access to tokenizer via flycast, using `tokenizer.fly.io`,
