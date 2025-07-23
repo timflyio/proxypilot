@@ -3,12 +3,7 @@
     {
       "name": "shell",
       "image": "registry.fly.io/proxypilot:shell",
-      "depends_on": [
-        {
-          "name": "sideproxy",
-          "condition": "healthy"
-        }
-      ],
+      "depends_on": [ { "name": "sideproxy" } ],
       "env": {
         "ANTHROPIC_API_KEY": "dummy",
         "OPENAI_API_KEY": "dummy",
@@ -18,15 +13,6 @@
     {
       "name": "sideproxy",
       "image": "timflyio/tlsproxy",
-      "healthchecks": [
-        {
-          "name": "443-reachable",
-          "tcp": {
-            "ip": "127.0.0.1",
-            "port": 443
-          }
-        }
-      ],
       "env": {
         "PROXY": "http://tokenizer.flycast:8080",
         "PORT": "443",

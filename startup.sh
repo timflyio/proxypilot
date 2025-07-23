@@ -1,11 +1,14 @@
 #!/bin/sh
 
-echo "adding our CA and redirecting api.github.com, anthropic, and openai"
-if ! curl -s -k https://localhost/ca-cert.pem > /ca.pem ; then
-    echo "FAILED TO GET CA CERT"
-    exit 1
-fi
+while [ ! -s /ca.pem ] ; do
+    echo "fetching CA"
+    if ! curl -s -k https://localhost/ca-cert.pem > /ca.pem ; then
+        echo "FAILED TO GET CA CERT"
+        sleep 1
+    fi
+done
 
+echo "adding our CA and redirecting api.github.com, anthropic, and openai"
 cat /ca.pem >> /etc/ssl/certs/ca-certificates.crt
 cat /ca.pem >> `python3 -c "import certifi; print(certifi.where())"`
 
